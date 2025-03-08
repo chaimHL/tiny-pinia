@@ -1,0 +1,24 @@
+{
+  "name": "tiny-pinia",
+  "version": "1.0.0",
+  "description": "模仿 pinia 的简单实现",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "npx tsc",
+    "prepublishOnly": "pnpm build"
+  },
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "keywords": [
+    "简易版 pinia"
+  ],
+  "author": "chaimHL",
+  "license": "ISC",
+  "dependencies": {
+    "typescript": "^5.8.2",
+    "vue": "^3.5.13"
+  }
+}
