@@ -1,9 +1,9 @@
 import { computed, type ComputedRef, effectScope, type EffectScope, inject, isReactive, isRef, type Reactive, reactive, ref, toRefs } from "vue"
 import { piniaSymbol } from "./rootStore"
+import { createDispose } from "./api"
 import type { createPinia } from "./createPinia"
 
-type Pinia = ReturnType<typeof createPinia>
-
+export type Pinia = ReturnType<typeof createPinia>
 
 export function defineStore(id: string, options: Record<string, any>): () => any
 // setup 风格的写法其实还能接收第 3个参数作为插件选项，此处忽略
@@ -27,14 +27,14 @@ export function defineStore(id: string, setup: any) {
 
 function createSetupStore<SS>(id: string, setup: () => SS, pinia: Pinia) {
   const store: Record<string, any> = reactive({})
-  const setupStore = setup()
   let storeScope: EffectScope
+  const setupStore = setup()
   const result = pinia._e.run(() => {
     storeScope = effectScope()
+    Object.assign(store, createApis(storeScope, pinia, id))
     return storeScope.run(() => processSetup<SS>(id, setupStore, pinia))
   })
-  const $dispose = createDispose(storeScope, pinia, id)
-  createStore(pinia, store, result, id, $dispose)
+  createStore(pinia, store, result, id)
 }
 
 function createOptionsStore(id: string, options: any, pinia: Pinia) {
@@ -42,14 +42,14 @@ function createOptionsStore(id: string, options: any, pinia: Pinia) {
   let storeScope: EffectScope
   const result = pinia._e.run(() => {
     storeScope = effectScope()
+    Object.assign(store, createApis(storeScope, pinia, id))
     return storeScope.run(() => processOptions(id, options, pinia, store))
   })
-  const $dispose = createDispose(storeScope, pinia, id)
-  createStore(pinia, store, result, id, $dispose)
+  createStore(pinia, store, result, id)
 }
 
-function createStore(pinia: Pinia, store: Record<string, any>, result: any, id: string, $dispose: () => void) {
-  Object.assign(store, result, $dispose)
+function createStore(pinia: Pinia, store: Record<string, any>, result: any, id: string) {
+  Object.assign(store, result)
   pinia._s.set(id, store)
   store.$id = id
 }
@@ -98,9 +98,15 @@ function isComputed(value: any) {
   return !!(isRef(value) && (value as any).effect)
 }
 
-function createDispose(scope: EffectScope, pinia: Pinia, id: string ) {
-  return function $dispose() {
-    scope.stop()
-    pinia._s.delete(id)
+/**
+ * 生成 store 上的各个 api
+ * @param scope
+ * @param pinia
+ * @param id
+ * @returns
+ */
+function createApis(scope: EffectScope, pinia: Pinia, id: string) {
+  return {
+    $dispose: createDispose(scope, pinia, id)
   }
 }
