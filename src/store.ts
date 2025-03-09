@@ -33,8 +33,8 @@ function createSetupStore<SS>(id: string, setup: () => SS, pinia: Pinia) {
     storeScope = effectScope()
     return storeScope.run(() => processSetup<SS>(id, setupStore, pinia))
   })
-  createDispose(storeScope, pinia, id)
-  createStore(pinia, store, result, id)
+  const $dispose = createDispose(storeScope, pinia, id)
+  createStore(pinia, store, result, id, $dispose)
 }
 
 function createOptionsStore(id: string, options: any, pinia: Pinia) {
@@ -44,12 +44,12 @@ function createOptionsStore(id: string, options: any, pinia: Pinia) {
     storeScope = effectScope()
     return storeScope.run(() => processOptions(id, options, pinia, store))
   })
-  createDispose(storeScope, pinia, id)
-  createStore(pinia, store, result, id)
+  const $dispose = createDispose(storeScope, pinia, id)
+  createStore(pinia, store, result, id, $dispose)
 }
 
-function createStore(pinia: Pinia, store: Record<string, any>, result: any, id: string) {
-  Object.assign(store, result)
+function createStore(pinia: Pinia, store: Record<string, any>, result: any, id: string, $dispose: () => void) {
+  Object.assign(store, result, $dispose)
   pinia._s.set(id, store)
   store.$id = id
 }
