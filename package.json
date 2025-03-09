@@ -1,6 +1,6 @@
 {
   "name": "tiny-pinia",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "模仿 pinia 的简单实现",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -17,7 +17,7 @@
   ],
   "author": "chaimHL",
   "license": "ISC",
-  "dependencies": {
+  "peerDependencies": {
     "typescript": "^5.8.2",
     "vue": "^3.5.13"
   }

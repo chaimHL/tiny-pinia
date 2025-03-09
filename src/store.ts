@@ -33,9 +33,8 @@ function createSetupStore<SS>(id: string, setup: () => SS, pinia: Pinia) {
     storeScope = effectScope()
     return storeScope.run(() => processSetup<SS>(id, setupStore, pinia))
   })
-  Object.assign(store, result)
-  pinia._s.set(id, store)
-  store.$id = id
+  createDispose(storeScope, pinia, id)
+  createStore(pinia, store, result, id)
 }
 
 function createOptionsStore(id: string, options: any, pinia: Pinia) {
@@ -45,6 +44,11 @@ function createOptionsStore(id: string, options: any, pinia: Pinia) {
     storeScope = effectScope()
     return storeScope.run(() => processOptions(id, options, pinia, store))
   })
+  createDispose(storeScope, pinia, id)
+  createStore(pinia, store, result, id)
+}
+
+function createStore(pinia: Pinia, store: Record<string, any>, result: any, id: string) {
   Object.assign(store, result)
   pinia._s.set(id, store)
   store.$id = id
@@ -94,4 +98,9 @@ function isComputed(value: any) {
   return !!(isRef(value) && (value as any).effect)
 }
 
-
+function createDispose(scope: EffectScope, pinia: Pinia, id: string ) {
+  return function $dispose() {
+    scope.stop()
+    pinia._s.delete(id)
+  }
+}
