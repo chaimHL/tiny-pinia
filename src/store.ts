@@ -5,9 +5,9 @@ import type { createPinia } from "./createPinia"
 
 export type Pinia = ReturnType<typeof createPinia>
 
-export function defineStore(id: string, options: Record<string, any>): () => any
+export function defineStore(id: string, options: Record<string, any>): Function
 // setup 风格的写法其实还能接收第 3个参数作为插件选项，此处忽略
-export function defineStore<SS>(id: string, storeSetup: () => SS): () => any
+export function defineStore<SS>(id: string, storeSetup: () => SS): Function
 export function defineStore(id: string, setup: any) {
   const isSetupStore = typeof setup === 'function'
   const options = isSetupStore ? {} : setup
@@ -68,7 +68,7 @@ function processOptions(id: string, options: any, pinia: Pinia, store: Reactive<
   }, {} as Record<string, ComputedRef>)
 
   // 处理 actions
-  const storeActions: Record<string, () => any> = {}
+  const storeActions: Record<string, Function> = {}
   for (const name in actions) {
     const action = actions[name]
     storeActions[name] = function (...rest) {
